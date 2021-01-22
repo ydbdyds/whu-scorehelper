@@ -6,14 +6,17 @@ from email.mime.text import MIMEText
 import time
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains 
+import warnings
 
+warnings.filterwarnings("ignore", category=Warning)
 chrome_options = webdriver.ChromeOptions()
-# options.add_experimental_option('excludeSwitches', ['enable-automation'])#提示浏览器不是selenium
+chrome_options.add_experimental_option('excludeSwitches', ['enable-logging'])#提示浏览器不是selenium
+chrome_options.add_argument('log-level=3')
 chrome_options.add_argument('--headless')  # 无头
 chrome_options.add_argument('--disable-gpu')
 chrome_options.add_argument('--no-sandbox')  # 这个配置很重要
-chrome_options.add_experimental_option('excludeSwitches',
-                                       ['enable-automation'])  # 此步骤很重要，设置为开发者模式，防止被各大网站识别出来使用了Selenium
+# chrome_options.add_experimental_option('excludeSwitches',
+#                                        ['enable-automation'])  # 此步骤很重要，设置为开发者模式，防止被各大网站识别出来使用了Selenium
 oldlist = ['1']
 
 class Selenium:
@@ -26,10 +29,10 @@ class Selenium:
 
     def sendmail(self,titile,msg):  #邮箱需开启stmp服务
         mailhost = 'smtp.qq.com'   
-        mailuser = '1004903113@qq.com'  #使用的邮箱
+        mailuser = ''  #使用的邮箱
         mailpsd = ''   #授权码或密码
-        sender = '1004903113@qq.com'   #发送者
-        receivers = '8354735@qq.com'    #接收者
+        sender = ''   #发送者
+        receivers = ''    #接收者
 
         msgs = MIMEText(msg,'html','utf-8')
         msgs['Subject'] = titile
@@ -42,13 +45,14 @@ class Selenium:
         smtp.quit()
         print('success')
 
-    def compareTwoList(self,oldList,newList):#列表对比
+    def compareTwoList(self,oldList,newList):
         diflist=[]
         for sub in newList:
             if(oldList.count(sub)==0):
                 diflist.append(sub)
                 
         return diflist
+
 
     def login(self, username, password):
         self.driver.get('http://ehall.whu.edu.cn/appShow?appId=5382714380693158')  # 走信息门户认证的教务系统url，不用输入验证码
@@ -65,11 +69,15 @@ class Selenium:
             # name=self.driver.find_element_by_id("ampHeaderToolUserName").text#获取姓名,内容为空，弃用
             name = self.driver.find_element_by_id("nameLable").text  # 获取学生姓名
             acade = self.driver.find_element_by_id("acade").text  # 获取学生院系
+            # cookies = self.driver.get_cookies()[0]
+            # print('登录成功 ...')
+            # self.driver.quit()
+            # html = self.driver.execute_script("return document.documentElement.outerHTML")
             html = self.driver.find_element_by_xpath('//*[@id="system"]').get_attribute('onclick')
             # 不要用 driver.page_source，那样得到的页面源码不标准
             #print(html)
             csrftoken = html.split(",")[0].split('csrftoken=')[-1]
-            print('登录成功！')
+            
             score = self.driver.find_element_by_id("btn3") #成绩按钮
             
             
@@ -81,7 +89,7 @@ class Selenium:
                 time.sleep(1.2)
                 self.driver.switch_to_frame('page_iframe')  #切换iframe
                 self.driver.switch_to_frame('iframe0')       #切换至成绩二级iframe 否则无法找到页面元素
-                print('点击完毕！')
+                
                 
                 lessonNamelist = self.driver.find_elements_by_xpath('//table[@class="table listTable"]/tbody/tr')  #行位置
                 # print(len(lessonNamelist))
@@ -142,5 +150,5 @@ if __name__ == '__main__':
         spider = Selenium()
         spider.login(username=username, password=password)  # 查看登录结果
         print('最后一次运行时间:',datetime.datetime.now())
-        time.sleep(60) #运行时间间隔
+        time.sleep(600)
    
