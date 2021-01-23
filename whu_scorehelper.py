@@ -150,5 +150,6 @@ if __name__ == '__main__':
         spider = Selenium()
         spider.login(username=username, password=password)  # 查看登录结果
         print('最后一次运行时间:',datetime.datetime.now())
+        spider.driver.quit()
         time.sleep(600)
    
